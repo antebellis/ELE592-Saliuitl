@@ -1,0 +1,7 @@
+.venv312/
+__pycache__/
+*/__pycache__/
+*.pyc
+
+# Large local dependency downloaded per README prerequisites
+weights/

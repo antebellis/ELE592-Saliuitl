@@ -1,0 +1,81 @@
+{
+  "target_stream_fps": 10.0,
+  "config": {
+    "python": ".venv312/Scripts/python",
+    "dataset": "voc",
+    "imgdir": "data/apricot_saliuitl/clean",
+    "patch_imgdir": "data/apricot_saliuitl/1p",
+    "det_net_path": "checkpoints/final_detection/2dcnn_raw_VOC_5_atk_det.pth",
+    "det_net": "2dcnn_raw",
+    "effective_files": "effective_1p.npy",
+    "n_patches": "1",
+    "inpaint": "biharmonic",
+    "det_mode": "balanced",
+    "ensemble_step": 5,
+    "inpainting_step": 5,
+    "lim": 1000000,
+    "out_root": "realtime_mode_overhead_apricot_full"
+  },
+  "results": [
+    {
+      "frames_inferred_from_reference": false,
+      "mode": "detection_only",
+      "command": ".venv312/Scripts/python saliuitl.py --dataset voc --imgdir data/apricot_saliuitl/clean --patch_imgdir data/apricot_saliuitl/1p --det_net_path checkpoints/final_detection/2dcnn_raw_VOC_5_atk_det.pth --det_net 2dcnn_raw --effective_files effective_1p.npy --n_patches 1 --inpaint biharmonic --det_mode balanced --ensemble_step 5 --inpainting_step 5 --lim 1000000 --save_scores --performance --performance_det --savedir realtime_mode_overhead_apricot_full\\detection_only --bypass",
+      "log_path": "realtime_mode_overhead_apricot_full\\detection_only\\run.log",
+      "frames_processed": 574,
+      "elapsed_sec": 644.7310518000158,
+      "fps": 0.8902937099081194,
+      "rt_factor_vs_10fps": 0.08902937099081194,
+      "meets_10fps": false,
+      "unsuccessful_attacks_rate": 0.7526132404181185,
+      "detected_attacks_rate": 0.3205574912891986,
+      "successful_attacks_rate": 0.24738675958188153,
+      "speedup_vs_detection_plus_recovery": 1.055805095783062
+    },
+    {
+      "frames_inferred_from_reference": false,
+      "mode": "detection_plus_recovery",
+      "command": ".venv312/Scripts/python saliuitl.py --dataset voc --imgdir data/apricot_saliuitl/clean --patch_imgdir data/apricot_saliuitl/1p --det_net_path checkpoints/final_detection/2dcnn_raw_VOC_5_atk_det.pth --det_net 2dcnn_raw --effective_files effective_1p.npy --n_patches 1 --inpaint biharmonic --det_mode balanced --ensemble_step 5 --inpainting_step 5 --lim 1000000 --save_scores --performance --performance_det --savedir realtime_mode_overhead_apricot_full\\detection_plus_recovery",
+      "log_path": "realtime_mode_overhead_apricot_full\\detection_plus_recovery\\run.log",
+      "frames_processed": 574,
+      "elapsed_sec": 680.71032990003,
+      "fps": 0.843236799541882,
+      "rt_factor_vs_10fps": 0.0843236799541882,
+      "meets_10fps": false,
+      "unsuccessful_attacks_rate": 0.7787456445993032,
+      "detected_attacks_rate": 0.3205574912891986,
+      "successful_attacks_rate": 0.22125435540069685,
+      "speedup_vs_detection_plus_recovery": 1.0
+    },
+    {
+      "frames_inferred_from_reference": true,
+      "mode": "classification_only",
+      "command": ".venv312/Scripts/python saliuitl.py --dataset voc --imgdir data/apricot_saliuitl/clean --patch_imgdir data/apricot_saliuitl/1p --det_net_path checkpoints/final_detection/2dcnn_raw_VOC_5_atk_det.pth --det_net 2dcnn_raw --effective_files effective_1p.npy --n_patches 1 --inpaint biharmonic --det_mode balanced --ensemble_step 5 --inpainting_step 5 --lim 1000000 --save_scores --performance --performance_det --savedir realtime_mode_overhead_apricot_full\\classification_only --bypass_det --bypass",
+      "log_path": "realtime_mode_overhead_apricot_full\\classification_only\\run.log",
+      "frames_processed": 574,
+      "elapsed_sec": 30.802092199970502,
+      "fps": 18.635097780810803,
+      "rt_factor_vs_10fps": 1.8635097780810803,
+      "meets_10fps": true,
+      "unsuccessful_attacks_rate": 0.7526132404181185,
+      "detected_attacks_rate": 0.0,
+      "successful_attacks_rate": 0.24738675958188153,
+      "speedup_vs_detection_plus_recovery": 22.09948355068822
+    },
+    {
+      "frames_inferred_from_reference": true,
+      "mode": "always_recovery",
+      "command": ".venv312/Scripts/python saliuitl.py --dataset voc --imgdir data/apricot_saliuitl/clean --patch_imgdir data/apricot_saliuitl/1p --det_net_path checkpoints/final_detection/2dcnn_raw_VOC_5_atk_det.pth --det_net 2dcnn_raw --effective_files effective_1p.npy --n_patches 1 --inpaint biharmonic --det_mode balanced --ensemble_step 5 --inpainting_step 5 --lim 1000000 --save_scores --performance --performance_det --savedir realtime_mode_overhead_apricot_full\\always_recovery --bypass_det",
+      "log_path": "realtime_mode_overhead_apricot_full\\always_recovery\\run.log",
+      "frames_processed": 574,
+      "elapsed_sec": 753.780895599979,
+      "fps": 0.7614944917688837,
+      "rt_factor_vs_10fps": 0.07614944917688837,
+      "meets_10fps": false,
+      "unsuccessful_attacks_rate": 0.8397212543554007,
+      "detected_attacks_rate": 1.0,
+      "successful_attacks_rate": 0.1602787456445993,
+      "speedup_vs_detection_plus_recovery": 0.9030612660436456
+    }
+  ]
+}

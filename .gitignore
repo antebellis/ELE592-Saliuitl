@@ -5,3 +5,19 @@ __pycache__/
 
 # Large local dependency downloaded per README prerequisites
 weights/
+
+# Large datasets / downloads (re-downloadable)
+APRICOTv1.0.tar
+APRICOTv1.0/
+apricot_home.html
+apricot_download.html
+apricot_box.html
+apricot_supplemental.pdf
+data/apricot_saliuitl/
+
+# Generated evaluation artifacts
+eval_apricot_*.log
+realtime_metrics*/
+realtime_mode_overhead_apricot*/
+ood_eval*.csv
+long_robust_eval*.csv

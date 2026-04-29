@@ -34,7 +34,7 @@ def parse_metrics(stdout: str) -> dict:
     return metrics
 
 
-def run_mode(args, mode_name: str, mode_flags: list[str], default_frames: int | None = None) -> dict:
+def run_mode(args, mode_name: str, mode_flags: list[str], default_frames: int | None = None, force_no_reuse: bool = False) -> dict:
     savedir = Path(args.out_root) / mode_name
     savedir.mkdir(parents=True, exist_ok=True)
 
@@ -57,8 +57,6 @@ def run_mode(args, mode_name: str, mode_flags: list[str], default_frames: int | 
         args.n_patches,
         "--inpaint",
         args.inpaint,
-        "--det_mode",
-        args.det_mode,
         "--ensemble_step",
         str(args.ensemble_step),
         "--inpainting_step",
@@ -70,7 +68,12 @@ def run_mode(args, mode_name: str, mode_flags: list[str], default_frames: int | 
         "--performance_det",
         "--savedir",
         str(savedir),
-    ] + mode_flags
+    ]
+    if args.det_mode:
+        cmd.extend(["--det_mode", args.det_mode])
+    if force_no_reuse:
+        cmd.append("--no_reuse_det_clusters")
+    cmd += mode_flags
 
     t0 = time.perf_counter()
     proc = subprocess.run(cmd, cwd=Path(__file__).resolve().parent, text=True, capture_output=True)
@@ -124,11 +127,13 @@ def main():
     parser.add_argument("--effective_files", default="effective_1p.npy")
     parser.add_argument("--n_patches", default="1")
     parser.add_argument("--inpaint", default="biharmonic")
-    parser.add_argument("--det_mode", default="balanced")
+    parser.add_argument("--det_mode", default=None, help="Detection mode preset (only for branches that support it).")
     parser.add_argument("--ensemble_step", type=int, default=5)
     parser.add_argument("--inpainting_step", type=int, default=5)
     parser.add_argument("--lim", type=int, default=1000000)
     parser.add_argument("--out_root", default="realtime_mode_overhead")
+    parser.add_argument("--force_no_reuse", action="store_true",
+                        help="Pass --no_reuse_det_clusters to saliuitl runs.")
     args = parser.parse_args()
 
     modes = [
@@ -141,7 +146,13 @@ def main():
     results = []
     reference_frames = None
     for mode_name, mode_flags in modes:
-        result = run_mode(args, mode_name, mode_flags, default_frames=reference_frames)
+        result = run_mode(
+            args,
+            mode_name,
+            mode_flags,
+            default_frames=reference_frames,
+            force_no_reuse=args.force_no_reuse,
+        )
         if reference_frames is None:
             reference_frames = result["frames_processed"]
         results.append(result)

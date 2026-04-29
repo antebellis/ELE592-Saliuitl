@@ -33,6 +33,9 @@ from sklearn.preprocessing import StandardScaler
 from scipy.spatial import distance_matrix
 from skimage.restoration import inpaint
 
+# Saliuitl pipeline entry point:
+# 1) run victim model, 2) detect attack from saliency-derived features,
+# 3) optionally recover predictions via saliency-guided inpainting
 parser = argparse.ArgumentParser()
 parser.add_argument("--save",action='store_true',help="save results to txt")
 parser.add_argument("--savedir",default='NN_based_imgclass/',type=str,help="save path")
@@ -53,6 +56,8 @@ parser.add_argument("--uneffective",action='store_true',help="use only non-effec
 parser.add_argument("--clean",action='store_true',help="use only clean images")
 parser.add_argument("--bypass_det",action='store_true',help="skip detection stage")
 parser.add_argument("--bypass",action='store_true',help="skip recovery stage")
+parser.add_argument("--no_reuse_det_clusters", action='store_true',
+                    help="force recovery to recompute clusters instead of reusing detection-stage clusters")
 
 parser.add_argument("--lim",default=1000000,type=int,help="limit on number of images/frames to process")
 parser.add_argument('--imgdir', default="inria/Train/pos", type=str,help="path to clean data")
@@ -86,8 +91,10 @@ args = parser.parse_args()
 warnings.filterwarnings("ignore")
 print("Setup...")
 if args.dataset in ['cifar', 'imagenet']:
+    # Image-classification victim branch
     model = nets.resnet.resnet50(pretrained=True,clip_range=None,aggregation=None)
 elif args.dataset in ['inria', 'voc']:
+    # Object-detection victim branch 
     cfgfile = args.cfg
     weightfile = args.weightfile
     model = Darknet(cfgfile)
@@ -282,6 +289,8 @@ if args.dataset in ['inria', 'voc']:
 
             """
             DETECTION STAGE
+            - Build attack score from saliency-derived detector attributes.
+            - Use score threshold to gate whether recovery runs.
             """
             if args.bypass_det:
                 condition=True
@@ -315,6 +324,8 @@ if args.dataset in ['inria', 'voc']:
                     detected=detected+1
             """
             RECOVERY STAGE
+            - Iterate saliency thresholds, inpaint suspicious regions,
+              and aggregate detections from repaired candidates.
             """
             if condition and not args.bypass:
                 if args.performance:
@@ -323,7 +334,7 @@ if args.dataset in ['inria', 'voc']:
                 my_mask=np.zeros((416,416))
                 detected=detected+1
                 stop=False
-                if not args.bypass_det:
+                if not args.bypass_det and not args.no_reuse_det_clusters:
                     revran_det=[0.0+x*0.01 for x in range(0,100,args.ensemble_step)]
                 else:
                     if args.performance:
@@ -507,6 +518,7 @@ elif args.dataset in ['cifar', 'imagenet']:
             output_clean, feature_map = output_clean.detach().cpu().numpy()[0], feature_map.detach().cpu().numpy()[0]
             """
             DETECTION STAGE
+            - Same gating idea as detection tasks, using classification feature maps.
             """
             if args.bypass_det:
                 condition=True
@@ -543,6 +555,7 @@ elif args.dataset in ['cifar', 'imagenet']:
                     detected=detected+1
             """
             RECOVERY STAGE
+            - Iteratively inpaint salient regions and re-evaluate class prediction.
             """
             if condition and not args.bypass:
                 if args.performance:
@@ -554,7 +567,7 @@ elif args.dataset in ['cifar', 'imagenet']:
                 pred_list = np.argsort(global_feature,kind='stable')
                 og_clean_pred = pred_list[-1]
                 all_feats= np.zeros(global_feature.shape).reshape(1,-1)
-                if not args.bypass_det:
+                if not args.bypass_det and not args.no_reuse_det_clusters:
                     revran_det=[0.0+x*0.01 for x in range(0,100,args.ensemble_step)]
                 else:
                     if args.performance:
@@ -666,6 +679,7 @@ elif args.dataset in ['cifar', 'imagenet']:
                         all_atk.append(nameee)
 
 torch.cuda.empty_cache()
+# Optional artifact dumps for post-hoc analysis/plotting.
 if args.save_scores:
     deer=os.path.join(args.savedir)
     if not os.path.exists(deer):
